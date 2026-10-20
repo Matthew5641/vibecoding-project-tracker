@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import Board from './components/Board.jsx';
 import TaskModal from './components/TaskModal.jsx';
+import DrivingStrip from './components/DrivingStrip.jsx';
+import Toast from './components/Toast.jsx';
 import { createSeedTasks, isoDaysFromToday } from './seedTasks.js';
 
 /**
@@ -46,7 +48,8 @@ export const STAGES = [
 ];
 
 // From PRD §10 (solo project). The only valid values for `Task.assignee`.
-export const TEAM = ['Matthew Devon'];
+// "AI Agent" stands in for the AI tool you hand work to (M7 handoff).
+export const TEAM = ['Matthew Devon', 'AI Agent'];
 
 /**
  * A tiny localStorage hook — survives reloads, no library needed.
@@ -78,11 +81,40 @@ export function useLocalStorage(key, initialValue) {
 export default function App() {
   const [tasks, setTasks] = useLocalStorage(
     'vibetracker.tasks',
-    createSeedTasks(TEAM[0])
+    createSeedTasks(TEAM)
   );
 
   // The task open in the modal, or null. `isNew` marks an unsaved draft.
   const [editing, setEditing] = useState(null);
+
+  const [toast, setToast] = useState(null);
+  const [highlightedId, setHighlightedId] = useState(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  useEffect(() => {
+    if (!highlightedId) return;
+    const timer = setTimeout(() => setHighlightedId(null), 2000);
+    return () => clearTimeout(timer);
+  }, [highlightedId]);
+
+  function showToast(message) {
+    setToast({ id: Date.now(), message });
+  }
+
+  function acknowledgeHandOff(taskId, name) {
+    showToast(`Handed off to ${name}. They've got it from here.`);
+    setHighlightedId(taskId);
+  }
+
+  function handOff(taskId, name) {
+    setTasks((ts) => ts.map((t) => (t.id === taskId ? { ...t, assignee: name } : t)));
+    acknowledgeHandOff(taskId, name);
+  }
 
   function nextTaskId() {
     const highest = tasks.reduce((max, t) => {
@@ -113,6 +145,7 @@ export default function App() {
       setTasks((ts) => [...ts, { ...task, id: nextTaskId() }]);
     } else {
       setTasks((ts) => ts.map((t) => (t.id === task.id ? task : t)));
+      if (task.assignee !== editing.task.assignee) acknowledgeHandOff(task.id, task.assignee);
     }
     setEditing(null);
   }
@@ -150,11 +183,16 @@ export default function App() {
 
       {/* TODO M11 anchors: render the Anchor Board (Presentation / Demo / Report / Documentation) above the board. */}
 
+      <DrivingStrip team={TEAM} tasks={tasks} />
+
       <main>
         <Board
           stages={STAGES}
           tasks={tasks}
+          team={TEAM}
           onOpenTask={(task) => setEditing({ isNew: false, task })}
+          onHandOff={handOff}
+          highlightedId={highlightedId}
         />
       </main>
 
@@ -170,6 +208,8 @@ export default function App() {
           onClose={() => setEditing(null)}
         />
       )}
+
+      <Toast toast={toast} />
     </div>
   );
 }

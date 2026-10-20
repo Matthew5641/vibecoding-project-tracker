@@ -4,7 +4,7 @@ import TaskCard from './TaskCard.jsx';
  * The four-column Kanban. Each column is a labelled <section> so screen
  * reader users can jump between them by heading (DESIGN.md §7).
  */
-export default function Board({ stages, tasks, onOpenTask }) {
+export default function Board({ stages, tasks, team, onOpenTask, onHandOff, highlightedId }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {stages.map((stage) => {
@@ -38,7 +38,13 @@ export default function Board({ stages, tasks, onOpenTask }) {
               <ul className="flex flex-col gap-2">
                 {columnTasks.map((task) => (
                   <li key={task.id}>
-                    <TaskCard task={task} onOpen={onOpenTask} />
+                    <TaskCard
+                      task={task}
+                      team={team}
+                      onOpen={onOpenTask}
+                      onHandOff={onHandOff}
+                      highlighted={task.id === highlightedId}
+                    />
                   </li>
                 ))}
               </ul>

@@ -15,7 +15,7 @@ export function isoDaysFromToday(days) {
   return `${y}-${m}-${day}`;
 }
 
-export function createSeedTasks(assignee) {
+export function createSeedTasks([human, agent = human]) {
   return [
     {
       id: 'T-101',
@@ -23,7 +23,7 @@ export function createSeedTasks(assignee) {
       description: 'Lock sections 1–7, fill in team, milestone owners and identity.',
       type: 'feature',
       status: 'done',
-      assignee,
+      assignee: human,
       dueDate: isoDaysFromToday(-1),
       createdDate: isoDaysFromToday(-2),
     },
@@ -33,7 +33,7 @@ export function createSeedTasks(assignee) {
       description: 'Four columns from STAGES, cards show title and assignee.',
       type: 'feature',
       status: 'in-progress',
-      assignee,
+      assignee: agent,
       dueDate: isoDaysFromToday(0),
       createdDate: isoDaysFromToday(-1),
     },
@@ -43,7 +43,7 @@ export function createSeedTasks(assignee) {
       description: 'Keyboard users cannot see which card is focused.',
       type: 'bug',
       status: 'review',
-      assignee,
+      assignee: human,
       dueDate: isoDaysFromToday(-1),
       createdDate: isoDaysFromToday(-1),
     },
@@ -53,7 +53,7 @@ export function createSeedTasks(assignee) {
       description: 'One modal for create and edit, with a status dropdown.',
       type: 'feature',
       status: 'todo',
-      assignee,
+      assignee: human,
       dueDate: isoDaysFromToday(4),
       createdDate: isoDaysFromToday(0),
     },

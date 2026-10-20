@@ -37,6 +37,16 @@ export default {
           'neutral-tint': '#F5F5F4',
         },
       },
+      // DESIGN.md §8 — the only animation: a 200 ms toast fade
+      keyframes: {
+        'toast-in': {
+          from: { opacity: '0', transform: 'translateY(0.5rem)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'toast-in': 'toast-in 200ms ease-out',
+      },
       // DESIGN.md §3
       fontFamily: {
         heading: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
