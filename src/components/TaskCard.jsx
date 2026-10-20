@@ -1,3 +1,5 @@
+import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
+
 /** "Matthew Devon" -> "MD" */
 export function initials(name) {
   return name
@@ -17,12 +19,17 @@ export function initials(name) {
  * and later buttons (M10 Copy Context) can sit on top without nesting.
  */
 export default function TaskCard({ task, onOpen }) {
+  const typeStyle = TYPE_STYLES[task.type] ?? TYPE_STYLES.feature;
+
   return (
     <article
       aria-labelledby={`task-${task.id}-title`}
-      className="relative rounded-lg border border-line-subtle bg-surface-card p-3 shadow-sm transition-shadow hover:shadow-md has-[:focus-visible]:shadow-md has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-primary has-[:focus-visible]:ring-offset-2"
+      className={`relative rounded-lg border border-l-4 border-line-subtle ${typeStyle.stripe} bg-surface-card p-3 shadow-sm transition-shadow hover:shadow-md has-[:focus-visible]:shadow-md has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-primary has-[:focus-visible]:ring-offset-2`}
     >
-      <p className="font-mono text-xs text-ink-muted">{task.id}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-mono text-xs text-ink-muted">{task.id}</p>
+        <TypeBadge type={task.type} />
+      </div>
 
       <h3
         id={`task-${task.id}-title`}

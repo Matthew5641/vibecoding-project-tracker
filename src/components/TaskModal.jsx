@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
 
 const inputClass =
   'mt-1 block w-full rounded-md border border-line-input bg-surface-card px-3 py-2 text-sm text-ink-primary ' +
@@ -63,6 +64,7 @@ export default function TaskModal({ task, isNew, stages, team, onSave, onDelete,
   }
 
   const headingId = 'task-modal-title';
+  const typeStyle = TYPE_STYLES[draft.type] ?? TYPE_STYLES.feature;
 
   return (
     <dialog
@@ -77,12 +79,15 @@ export default function TaskModal({ task, isNew, stages, team, onSave, onDelete,
         // selecting text and releasing outside the panel doesn't lose work.
         if (pressStartedOnBackdrop.current && e.target === dialogRef.current) onClose();
       }}
-      className="w-[calc(100%-2rem)] max-w-lg rounded-xl bg-surface-card p-0 text-ink-primary shadow-xl backdrop:bg-ink-primary/40"
+      className={`w-[calc(100%-2rem)] max-w-lg rounded-xl border-t-4 ${typeStyle.topEdge} bg-surface-card p-0 text-ink-primary shadow-xl backdrop:bg-ink-primary/40`}
     >
       <form onSubmit={handleSubmit} noValidate className="max-h-[calc(100dvh-2rem)] overflow-y-auto p-6">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-xs text-ink-muted">{isNew ? 'New task' : draft.id}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-mono text-xs text-ink-muted">{isNew ? 'New task' : draft.id}</p>
+              <TypeBadge type={draft.type} />
+            </div>
             <h2 id={headingId} className="font-heading text-xl font-semibold">
               {isNew ? 'Add a task' : 'Edit task'}
             </h2>
