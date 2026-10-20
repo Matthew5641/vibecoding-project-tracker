@@ -5,6 +5,7 @@ import DrivingStrip from './components/DrivingStrip.jsx';
 import Toast from './components/Toast.jsx';
 import { DueLegend } from './components/DueLabel.jsx';
 import { CONTEXT_TEMPLATE } from './components/ContextField.jsx';
+import DeliverableAnchors, { EMPTY_ANCHORS } from './components/DeliverableAnchors.jsx';
 import { createSeedTasks, isoDaysFromToday } from './seedTasks.js';
 
 /**
@@ -170,8 +171,7 @@ export default function App() {
     setEditing(null);
   }
 
-  // TODO M11 anchors:
-  //   const [anchors, setAnchors] = useLocalStorage('vibetracker.anchors', [...]);
+  const [anchors, setAnchors] = useLocalStorage('vibetracker.anchors', EMPTY_ANCHORS);
 
   return (
     <div className="mx-auto min-h-screen max-w-7xl p-4 sm:p-6">
@@ -196,7 +196,7 @@ export default function App() {
         </button>
       </header>
 
-      {/* TODO M11 anchors: render the Anchor Board (Presentation / Demo / Report / Documentation) above the board. */}
+      <DeliverableAnchors anchors={anchors} onChange={setAnchors} />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <DrivingStrip team={TEAM} tasks={tasks} />
