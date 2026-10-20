@@ -4,6 +4,7 @@ import TaskModal from './components/TaskModal.jsx';
 import DrivingStrip from './components/DrivingStrip.jsx';
 import Toast from './components/Toast.jsx';
 import { DueLegend } from './components/DueLabel.jsx';
+import { CONTEXT_TEMPLATE } from './components/ContextField.jsx';
 import { createSeedTasks, isoDaysFromToday } from './seedTasks.js';
 
 /**
@@ -37,6 +38,9 @@ import { createSeedTasks, isoDaysFromToday } from './seedTasks.js';
  * @property {string} assignee
  * @property {string|null} dueDate     ISO 'YYYY-MM-DD'
  * @property {string} createdDate      ISO 'YYYY-MM-DD'
+ * @property {string} [context]        Markdown briefing for an AI tool (M9)
+ * @property {string|null} [contextTool]  Claude, ChatGPT, Cursor, Lovable, Replit or Other
+ * @property {string|null} [contextUpdatedAt]  ISO timestamp, set on every context edit
  */
 
 // The four columns of the board, in render order.
@@ -144,6 +148,9 @@ export default function App() {
         assignee: TEAM[0],
         dueDate: null,
         createdDate: isoDaysFromToday(0),
+        context: CONTEXT_TEMPLATE,
+        contextTool: null,
+        contextUpdatedAt: null,
       },
     });
   }

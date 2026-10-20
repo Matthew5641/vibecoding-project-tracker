@@ -31,6 +31,21 @@ export function createSeedTasks([human, agent = human]) {
       id: 'T-102',
       title: 'Build the Kanban board',
       description: 'Four columns from STAGES, cards show title and assignee.',
+      context: `## Background
+M4 of the hackathon: get the Kanban on screen. Everything else hangs off it.
+
+## Constraints
+- React + Vite + Tailwind, localStorage only
+- Columns are labelled sections (DESIGN.md §7)
+
+## Tried so far
+- Scaffolded Board and TaskCard components
+
+## Pick up
+Seed 3–4 tasks and show title + assignee on each card.
+`,
+      contextTool: 'Claude',
+      contextUpdatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       type: 'feature',
       status: 'in-progress',
       assignee: agent,

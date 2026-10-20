@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import ContextField from './ContextField.jsx';
 import DueLabel, { getDueState } from './DueLabel.jsx';
 import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
 
@@ -50,7 +51,12 @@ export default function TaskModal({ task, isNew, stages, team, onSave, onDelete,
   }, [confirmingDelete]);
 
   function update(field, value) {
-    setDraft((d) => ({ ...d, [field]: value }));
+    setDraft((d) => ({
+      ...d,
+      [field]: value,
+      // M9: stamp the context whenever it is edited
+      ...(field === 'context' && { contextUpdatedAt: new Date().toISOString() }),
+    }));
   }
 
   function handleSubmit(e) {
@@ -80,7 +86,7 @@ export default function TaskModal({ task, isNew, stages, team, onSave, onDelete,
         // selecting text and releasing outside the panel doesn't lose work.
         if (pressStartedOnBackdrop.current && e.target === dialogRef.current) onClose();
       }}
-      className={`w-[calc(100%-2rem)] max-w-lg rounded-xl border-t-4 ${typeStyle.topEdge} bg-surface-card p-0 text-ink-primary shadow-xl backdrop:bg-ink-primary/40`}
+      className={`w-[calc(100%-2rem)] max-w-2xl rounded-xl border-t-4 ${typeStyle.topEdge} bg-surface-card p-0 text-ink-primary shadow-xl backdrop:bg-ink-primary/40`}
     >
       <form onSubmit={handleSubmit} noValidate className="max-h-[calc(100dvh-2rem)] overflow-y-auto p-6">
         <div className="mb-5 flex items-start justify-between gap-4">
@@ -197,6 +203,15 @@ export default function TaskModal({ task, isNew, stages, team, onSave, onDelete,
               </p>
             </div>
           </div>
+
+          <ContextField
+            context={draft.context ?? ''}
+            contextTool={draft.contextTool}
+            contextUpdatedAt={draft.contextUpdatedAt}
+            inputClass={inputClass}
+            labelClass={labelClass}
+            onChange={update}
+          />
 
           <p className="text-xs text-ink-muted">
             Created <span className="font-mono">{draft.createdDate}</span>
