@@ -48,7 +48,7 @@ const toggleClass = (active) =>
  * Write / Preview toggle for the Markdown (stretch goal). Inputs come from
  * TaskModal's draft; `onChange(field, value)` updates it.
  */
-export default function ContextField({ context, contextTool, contextUpdatedAt, inputClass, labelClass, onChange }) {
+export default function ContextField({ context, contextTool, contextUpdatedAt, inputClass, labelClass, onChange, copyButton }) {
   const [mode, setMode] = useState('write');
 
   return (
@@ -59,13 +59,16 @@ export default function ContextField({ context, contextTool, contextUpdatedAt, i
         <p id="context-help" className="text-xs text-ink-muted">
           A Markdown briefing to paste into your AI tool.
         </p>
-        <div role="group" aria-label="Context view" className="flex gap-1 rounded-md bg-surface-page p-1">
-          <button type="button" aria-pressed={mode === 'write'} onClick={() => setMode('write')} className={toggleClass(mode === 'write')}>
-            Write
-          </button>
-          <button type="button" aria-pressed={mode === 'preview'} onClick={() => setMode('preview')} className={toggleClass(mode === 'preview')}>
-            Preview
-          </button>
+        <div className="flex items-center gap-2">
+          {copyButton}
+          <div role="group" aria-label="Context view" className="flex gap-1 rounded-md bg-surface-page p-1">
+            <button type="button" aria-pressed={mode === 'write'} onClick={() => setMode('write')} className={toggleClass(mode === 'write')}>
+              Write
+            </button>
+            <button type="button" aria-pressed={mode === 'preview'} onClick={() => setMode('preview')} className={toggleClass(mode === 'preview')}>
+              Preview
+            </button>
+          </div>
         </div>
       </div>
 

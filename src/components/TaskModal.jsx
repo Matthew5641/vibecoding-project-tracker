@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import ContextField from './ContextField.jsx';
+import CopyContextButton from './CopyContextButton.jsx';
 import DueLabel, { getDueState } from './DueLabel.jsx';
 import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
 
@@ -211,6 +212,7 @@ export default function TaskModal({ task, isNew, stages, team, onSave, onDelete,
             inputClass={inputClass}
             labelClass={labelClass}
             onChange={update}
+            copyButton={<CopyContextButton task={draft} stages={stages} />}
           />
 
           <p className="text-xs text-ink-muted">

@@ -4,7 +4,7 @@ import TaskCard from './TaskCard.jsx';
  * The four-column Kanban. Each column is a labelled <section> so screen
  * reader users can jump between them by heading (DESIGN.md §7).
  */
-export default function Board({ stages, tasks, team, now, onOpenTask, onHandOff, highlightedId }) {
+export default function Board({ stages, tasks, team, now, onOpenTask, onHandOff, onContextCopied, highlightedId }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {stages.map((stage) => {
@@ -41,9 +41,11 @@ export default function Board({ stages, tasks, team, now, onOpenTask, onHandOff,
                     <TaskCard
                       task={task}
                       team={team}
+                      stages={stages}
                       now={now}
                       onOpen={onOpenTask}
                       onHandOff={onHandOff}
+                      onContextCopied={onContextCopied}
                       highlighted={task.id === highlightedId}
                     />
                   </li>

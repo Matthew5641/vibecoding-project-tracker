@@ -211,6 +211,13 @@ export default function App() {
           now={now}
           onOpenTask={(task) => setEditing({ isNew: false, task })}
           onHandOff={handOff}
+          onContextCopied={(ok) =>
+            showToast(
+              ok
+                ? 'Context copied — paste it into your AI and keep vibing.'
+                : "Couldn't copy. Open the task and copy the context manually."
+            )
+          }
           highlightedId={highlightedId}
         />
       </main>

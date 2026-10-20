@@ -1,4 +1,5 @@
 import Avatar from './Avatar.jsx';
+import CopyContextButton from './CopyContextButton.jsx';
 import DueLabel, { DUE_STYLES, getDueState } from './DueLabel.jsx';
 import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
 
@@ -10,7 +11,7 @@ import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
  * the card is one big click target but still a heading for screen readers —
  * and later buttons (M10 Copy Context) can sit on top without nesting.
  */
-export default function TaskCard({ task, team, now, onOpen, onHandOff, highlighted }) {
+export default function TaskCard({ task, team, stages, now, onOpen, onHandOff, onContextCopied, highlighted }) {
   const typeStyle = TYPE_STYLES[task.type] ?? TYPE_STYLES.feature;
   const others = team.filter((name) => name !== task.assignee);
   const due = getDueState(task, now);
@@ -41,11 +42,11 @@ export default function TaskCard({ task, team, now, onOpen, onHandOff, highlight
         </button>
       </h3>
 
-      {due && (
-        <div className="mt-2">
-          <DueLabel due={due} />
-        </div>
-      )}
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        <DueLabel due={due} />
+        {/* z-10 lifts the button above the stretched title button */}
+        <CopyContextButton task={task} stages={stages} onCopied={onContextCopied} className="relative z-10 ml-auto" />
+      </div>
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
