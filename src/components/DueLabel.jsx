@@ -87,13 +87,13 @@ export default function DueLabel({ due }) {
   );
 }
 
-/** Key for the four due states, shown above the board. */
+/** Key for the four due states, shown in the Board section heading. */
 export function DueLegend() {
   return (
-    <section aria-labelledby="due-legend-heading" className="flex flex-wrap items-center gap-x-4 gap-y-2">
-      <h2 id="due-legend-heading" className="text-xs font-medium text-ink-muted">
+    <div role="group" aria-labelledby="due-legend-heading" className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <span id="due-legend-heading" className="text-xs font-medium text-ink-muted">
         Due dates:
-      </h2>
+      </span>
       <ul className="flex flex-wrap gap-x-4 gap-y-2">
         {Object.entries(DUE_STYLES).map(([state, { Icon, bg, border, text, legend }]) => (
           <li key={state} className="flex items-center gap-1.5 text-xs text-ink-primary">
@@ -107,6 +107,6 @@ export function DueLegend() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   );
 }

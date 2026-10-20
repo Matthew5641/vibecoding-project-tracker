@@ -1,11 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Board from './components/Board.jsx';
 import TaskModal from './components/TaskModal.jsx';
 import DrivingStrip from './components/DrivingStrip.jsx';
 import Toast from './components/Toast.jsx';
 import { DueLegend } from './components/DueLabel.jsx';
+import SectionHeading from './components/SectionHeading.jsx';
 import { CONTEXT_TEMPLATE } from './components/ContextField.jsx';
-import DeliverableAnchors, { EMPTY_ANCHORS } from './components/DeliverableAnchors.jsx';
+import DeliverableAnchors, { DELIVERABLES, EMPTY_ANCHORS, safeHref } from './components/DeliverableAnchors.jsx';
+import Tabs from './components/Tabs.jsx';
+import ShipSparks from './components/ShipSparks.jsx';
+import ShippedCounter from './components/ShippedCounter.jsx';
+import ThemeToggle from './components/ThemeToggle.jsx';
+import ShinyText from './components/ShinyText.jsx';
 import { createSeedTasks, isoDaysFromToday } from './seedTasks.js';
 
 /**
@@ -42,6 +48,7 @@ import { createSeedTasks, isoDaysFromToday } from './seedTasks.js';
  * @property {string} [context]        Markdown briefing for an AI tool (M9)
  * @property {string|null} [contextTool]  Claude, ChatGPT, Cursor, Lovable, Replit or Other
  * @property {string|null} [contextUpdatedAt]  ISO timestamp, set on every context edit
+ * @property {import('./prompts.js').PromptEntry[]} [prompts]  Prompt log, newest first (M12)
  */
 
 // The four columns of the board, in render order.
@@ -53,9 +60,10 @@ export const STAGES = [
   { id: 'done',        label: 'Done' },
 ];
 
-// From PRD §10 (solo project). The only valid values for `Task.assignee`.
-// "AI Agent" stands in for the AI tool you hand work to (M7 handoff).
-export const TEAM = ['Matthew Devon', 'AI Agent'];
+// Starting team, from PRD §10 (solo project). Teammates can be added and
+// removed in the app (M12); the live list is saved as `vibetracker.team` and
+// is the only set of valid values for `Task.assignee`.
+export const TEAM = ['Matthew Devon'];
 
 /**
  * A tiny localStorage hook — survives reloads, no library needed.
@@ -89,6 +97,12 @@ export default function App() {
     'vibetracker.tasks',
     createSeedTasks(TEAM)
   );
+
+  const [team, setTeam] = useLocalStorage('vibetracker.team', TEAM);
+  // Role per teammate, by name (M12) — e.g. { 'Matthew Devon': 'Designer' }
+  const [roles, setRoles] = useLocalStorage('vibetracker.roles', { [TEAM[0]]: 'Designer' });
+  // Teammate whose tasks the board is filtered to, or null for everyone (M12)
+  const [filter, setFilter] = useState(null);
 
   // The task open in the modal, or null. `isNew` marks an unsaved draft.
   const [editing, setEditing] = useState(null);
@@ -124,6 +138,49 @@ export default function App() {
     setHighlightedId(taskId);
   }
 
+  // M12 ship moment: sparks where the card lands, plus a toast
+  const sparksRef = useRef(null);
+  // Bumped on every ship, replaying the shine across "Ship" in the title
+  const [shipCount, setShipCount] = useState(0);
+
+  function celebrateShip(task, point) {
+    if (point) sparksRef.current?.burst(point.x, point.y);
+    showToast(`Shipped "${task.title}". Nice work.`);
+    setShipCount((n) => n + 1);
+  }
+
+  function moveTask(taskId, status, point) {
+    const task = tasks.find((t) => t.id === taskId);
+    setTasks((ts) => ts.map((t) => (t.id === taskId ? { ...t, status } : t)));
+    if (status === 'done') celebrateShip(task, point);
+  }
+
+  function addTeammate(name, role) {
+    setTeam((t) => [...t, name]);
+    setRoles((r) => ({ ...r, [name]: role }));
+    showToast(`${name} (${role}) joined the team. You can hand tasks off to them now.`);
+  }
+
+  function removeTeammate(name) {
+    const theirs = tasks.filter((t) => t.assignee === name);
+    const fallback = team.find((n) => n !== name);
+    const message =
+      theirs.length > 0
+        ? `Remove ${name} from the team? Their ${theirs.length} ${theirs.length === 1 ? 'task goes' : 'tasks go'} back to ${fallback}.`
+        : `Remove ${name} from the team?`;
+    if (!window.confirm(message)) return;
+
+    setTeam((t) => t.filter((n) => n !== name));
+    setRoles(({ [name]: _removed, ...rest }) => rest);
+    if (filter === name) setFilter(null);
+    if (theirs.length > 0) {
+      setTasks((ts) => ts.map((t) => (t.assignee === name ? { ...t, assignee: fallback } : t)));
+    }
+    showToast(
+      theirs.length > 0 ? `${name} removed. Their tasks went back to ${fallback}.` : `${name} removed from the team.`
+    );
+  }
+
   function handOff(taskId, name) {
     setTasks((ts) => ts.map((t) => (t.id === taskId ? { ...t, assignee: name } : t)));
     acknowledgeHandOff(taskId, name);
@@ -146,12 +203,13 @@ export default function App() {
         description: '',
         type: 'feature',
         status: 'todo',
-        assignee: TEAM[0],
+        assignee: team[0],
         dueDate: null,
         createdDate: isoDaysFromToday(0),
         context: CONTEXT_TEMPLATE,
         contextTool: null,
         contextUpdatedAt: null,
+        prompts: [],
       },
     });
   }
@@ -162,6 +220,7 @@ export default function App() {
     } else {
       setTasks((ts) => ts.map((t) => (t.id === task.id ? task : t)));
       if (task.assignee !== editing.task.assignee) acknowledgeHandOff(task.id, task.assignee);
+      else if (task.status === 'done' && editing.task.status !== 'done') celebrateShip(task, null);
     }
     setEditing(null);
   }
@@ -172,6 +231,10 @@ export default function App() {
   }
 
   const [anchors, setAnchors] = useLocalStorage('vibetracker.anchors', EMPTY_ANCHORS);
+  const linkedCount = DELIVERABLES.filter(({ id }) => safeHref(anchors[id] ?? '')).length;
+
+  // Board | Deliverables tabs (M12), remembered across reloads
+  const [tab, setTab] = useLocalStorage('vibetracker.tab', 'board');
 
   return (
     <div className="mx-auto min-h-screen max-w-7xl p-4 sm:p-6">
@@ -180,46 +243,103 @@ export default function App() {
           <h1 className="font-heading text-2xl font-semibold text-ink-primary">
             Intent{' '}
             <span className="text-brand-primary" aria-hidden="true">→</span>
-            <span className="sr-only">to</span> Ship
+            <span className="sr-only">to</span> <ShinyText replay={shipCount}>Ship</ShinyText>
           </h1>
           <p className="text-sm text-ink-muted">
             Team Matthew · from intent to ship, one vibecoding task at a time
           </p>
         </div>
-        <button
-          id="new-task-button"
-          type="button"
-          onClick={openNewTask}
-          className="h-10 rounded-md bg-brand-primary px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-        >
-          <span aria-hidden="true">+</span> New task
-        </button>
+        <div className="flex items-end gap-6">
+          <ShippedCounter
+            shipped={tasks.filter((t) => t.status === 'done').length}
+            total={tasks.length}
+          />
+          <button
+            id="new-task-button"
+            type="button"
+            onClick={openNewTask}
+            className="h-10 rounded-md bg-brand-primary px-4 text-sm font-medium text-ink-on-fill hover:bg-brand-primary-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+          >
+            <span aria-hidden="true">+</span> New task
+          </button>
+          <ThemeToggle />
+        </div>
       </header>
 
-      <DeliverableAnchors anchors={anchors} onChange={setAnchors} />
-
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <DrivingStrip team={TEAM} tasks={tasks} />
-        <DueLegend />
-      </div>
-
       <main>
-        <Board
-          stages={STAGES}
-          tasks={tasks}
-          team={TEAM}
-          now={now}
-          onOpenTask={(task) => setEditing({ isNew: false, task })}
-          onHandOff={handOff}
-          onContextCopied={(ok) =>
-            showToast(
-              ok
-                ? 'Context copied — paste it into your AI and keep vibing.'
-                : "Couldn't copy. Open the task and copy the context manually."
-            )
-          }
-          highlightedId={highlightedId}
+        <Tabs
+          label="Views"
+          selected={tab}
+          onSelect={setTab}
+          tabs={[
+            { id: 'board', label: 'Board' },
+            {
+              id: 'deliverables',
+              label: 'Deliverables',
+              badge: `${linkedCount}/${DELIVERABLES.length}`,
+              badgeLabel: `${linkedCount} of ${DELIVERABLES.length} linked`,
+            },
+          ]}
         />
+
+        <div id="panel-board" role="tabpanel" aria-labelledby="tab-board" hidden={tab !== 'board'}>
+          <DrivingStrip
+            team={team}
+            roles={roles}
+            tasks={tasks}
+            now={now}
+            filter={filter}
+            onFilter={setFilter}
+            onAdd={addTeammate}
+            onRemove={removeTeammate}
+          />
+
+          <SectionHeading id="board-heading" action={<DueLegend />}>
+            Board
+          </SectionHeading>
+
+          {/* Filter notice (M12): visible banner + one screen reader announcement */}
+          <p role="status" className="sr-only">
+            {filter ? `Board filtered: showing only ${filter}'s tasks.` : ''}
+          </p>
+          {filter && (
+            <div className="mb-3 flex flex-wrap items-center gap-3 rounded-lg border border-brand-primary/40 bg-brand-primary/5 px-3 py-2 text-sm text-ink-primary">
+              <span>
+                Showing only <strong className="font-semibold">{filter}</strong>’s tasks
+              </span>
+              <button
+                type="button"
+                onClick={() => setFilter(null)}
+                className="h-8 rounded-md border border-line-input bg-surface-card px-3 text-xs font-medium text-ink-primary hover:bg-surface-page focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              >
+                Show everyone
+              </button>
+            </div>
+          )}
+
+          <Board
+            stages={STAGES}
+            tasks={filter ? tasks.filter((t) => t.assignee === filter) : tasks}
+            team={team}
+            roles={roles}
+            now={now}
+            onOpenTask={(task) => setEditing({ isNew: false, task })}
+            onHandOff={handOff}
+            onMoveTask={moveTask}
+            onContextCopied={(ok) =>
+              showToast(
+                ok
+                  ? 'Context copied — paste it into your AI and keep vibing.'
+                  : "Couldn't copy. Open the task and copy the context manually."
+              )
+            }
+            highlightedId={highlightedId}
+          />
+        </div>
+
+        <div id="panel-deliverables" role="tabpanel" aria-labelledby="tab-deliverables" hidden={tab !== 'deliverables'}>
+          <DeliverableAnchors anchors={anchors} onChange={setAnchors} />
+        </div>
       </main>
 
       {editing && (
@@ -228,13 +348,15 @@ export default function App() {
           task={editing.task}
           isNew={editing.isNew}
           stages={STAGES}
-          team={TEAM}
+          team={team}
+          roles={roles}
           onSave={saveTask}
           onDelete={deleteTask}
           onClose={() => setEditing(null)}
         />
       )}
 
+      <ShipSparks ref={sparksRef} />
       <Toast toast={toast} />
     </div>
   );

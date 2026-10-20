@@ -15,7 +15,7 @@ export default function Toast({ toast }) {
       {toast && (
         <p
           key={toast.id}
-          className="rounded-lg bg-ink-primary px-4 py-3 text-sm font-medium text-white shadow-lg motion-safe:animate-toast-in"
+          className="rounded-lg bg-ink-primary px-4 py-3 text-sm font-medium text-ink-on-fill shadow-lg motion-safe:animate-toast-in"
         >
           {toast.message}
         </p>

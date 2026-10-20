@@ -1,5 +1,3 @@
-import { Bot } from 'lucide-react';
-
 /** "Matthew Devon" -> "MD" */
 export function initials(name) {
   return name
@@ -10,7 +8,7 @@ export function initials(name) {
     .join('');
 }
 
-// One colour per teammate, in TEAM order. White text is >= 4.5:1 on each.
+// One colour per teammate, in TEAM order. ink-on-fill text is >= 4.5:1 on each, in both themes.
 const AVATAR_COLOURS = ['bg-brand-primary', 'bg-ink-primary', 'bg-feature', 'bg-brand-accent'];
 
 /**
@@ -20,16 +18,15 @@ const AVATAR_COLOURS = ['bg-brand-primary', 'bg-ink-primary', 'bg-feature', 'bg-
 export default function Avatar({ name, team, size = 'md' }) {
   const index = Math.max(0, team.indexOf(name));
   const colour = AVATAR_COLOURS[index % AVATAR_COLOURS.length];
-  const isAgent = /\bAI\b/.test(name);
   const dimensions = size === 'sm' ? 'h-6 w-6' : 'h-8 w-8';
 
   return (
     <span
       aria-hidden="true"
       title={name}
-      className={`flex ${dimensions} shrink-0 items-center justify-center rounded-full ${colour} text-xs font-semibold text-white`}
+      className={`flex ${dimensions} shrink-0 items-center justify-center rounded-full ${colour} text-xs font-semibold text-ink-on-fill`}
     >
-      {isAgent ? <Bot className="h-4 w-4" strokeWidth={2.25} /> : initials(name)}
+      {initials(name)}
     </span>
   );
 }

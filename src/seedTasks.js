@@ -15,7 +15,7 @@ export function isoDaysFromToday(days) {
   return `${y}-${m}-${day}`;
 }
 
-export function createSeedTasks([human, agent = human]) {
+export function createSeedTasks([owner]) {
   return [
     {
       id: 'T-101',
@@ -23,7 +23,7 @@ export function createSeedTasks([human, agent = human]) {
       description: 'Lock sections 1–7, fill in team, milestone owners and identity.',
       type: 'feature',
       status: 'done',
-      assignee: human,
+      assignee: owner,
       dueDate: isoDaysFromToday(-1),
       createdDate: isoDaysFromToday(-2),
     },
@@ -46,9 +46,27 @@ Seed 3–4 tasks and show title + assignee on each card.
 `,
       contextTool: 'Claude',
       contextUpdatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      prompts: [
+        {
+          id: 'p-seed-2',
+          prompt: 'Render the four STAGES as labelled <section> columns and show title + assignee on each card. Use the Tailwind tokens from DESIGN.md.',
+          tool: 'Claude',
+          outcome: 'worked',
+          note: 'Board renders; columns announce their task count.',
+          createdAt: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
+        },
+        {
+          id: 'p-seed-1',
+          prompt: 'Build a Kanban board for my tracker.',
+          tool: 'ChatGPT',
+          outcome: 'failed',
+          note: 'Too vague — invented its own data model and ignored the starter.',
+          createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+        },
+      ],
       type: 'feature',
       status: 'in-progress',
-      assignee: agent,
+      assignee: owner,
       dueDate: isoDaysFromToday(0),
       createdDate: isoDaysFromToday(-1),
     },
@@ -58,7 +76,7 @@ Seed 3–4 tasks and show title + assignee on each card.
       description: 'Keyboard users cannot see which card is focused.',
       type: 'bug',
       status: 'review',
-      assignee: human,
+      assignee: owner,
       dueDate: isoDaysFromToday(-1),
       createdDate: isoDaysFromToday(-1),
     },
@@ -68,7 +86,7 @@ Seed 3–4 tasks and show title + assignee on each card.
       description: 'One modal for create and edit, with a status dropdown.',
       type: 'feature',
       status: 'todo',
-      assignee: human,
+      assignee: owner,
       dueDate: isoDaysFromToday(4),
       createdDate: isoDaysFromToday(0),
     },

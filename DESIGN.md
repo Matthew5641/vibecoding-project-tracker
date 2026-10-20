@@ -42,6 +42,31 @@ These are the colors the build milestones will reference. Once chosen, paste the
 | `border-subtle` | `#E7E5E4` | Decorative card/column borders only — never the only edge of an interactive control |
 
 > In `tailwind.config.js` the text tokens are named `ink-primary` / `ink-muted` (so the class reads `text-ink-muted`, not `text-text-muted`), and borders are `line-input` / `line-subtle`. Tints: `bg-feature-tint`, `bg-due-warning-tint`, etc. Fonts: `font-heading`, `font-sans` (default), `font-mono`.
+>
+> All tokens are CSS variables in `src/index.css` with a light and a dark value, so classes switch theme on their own. Text on a solid fill (buttons, avatars, toast) uses `text-ink-on-fill`, which is white in light mode and near-black in dark mode. Never hard-code `text-white`.
+
+### Dark mode (M12 `secret-sauce`)
+
+Toggled by the sun / moon switch in the header; defaults to the OS setting until the user chooses. In dark mode the solid colours become lighter so they still read as text on dark surfaces, and solid fills carry dark text.
+
+| Token | Light | Dark |
+|---|---|---|
+| `brand-primary` | `#4F46E5` | `#A5A0FF` |
+| `brand-accent` | `#BE185D` | `#F48FC4` |
+| `surface-page` | `#F7F6F3` | `#131218` |
+| `surface-card` | `#FFFFFF` | `#1E1D26` |
+| `surface-column` | `#F2F1EE` | `#19181F` |
+| `text-primary` (`ink-primary`) | `#1C1B22` | `#EDEBF2` |
+| `text-muted` (`ink-muted`) | `#5F5C6B` | `#A9A6B5` |
+| `ink-on-fill` | `#FFFFFF` | `#131218` |
+| `border-input` (`line-input`) | `#86828F` | `#77738A` |
+| `border-subtle` (`line-subtle`) | `#E7E5E4` | `#2E2C38` |
+| `type-feature` / tint | `#0F766E` / `#F0FDFA` | `#2DD4BF` / `#122B29` |
+| `type-bug` / tint | `#BE123C` / `#FFF1F2` | `#FB8DA0` / `#341A21` |
+| `due-safe` / tint | `#1D4ED8` / `#EFF6FF` | `#86B8FF` / `#16233A` |
+| `due-warning` / tint | `#B45309` / `#FFFBEB` | `#F7C04A` / `#2E2412` |
+| `due-overdue` / tint | `#B91C1C` / `#FEF2F2` | `#FF8A8A` / `#361A1C` |
+| `due-neutral` / tint | `#6B6560` / `#F5F5F4` | `#B4AFA8` / `#25242C` |
 
 ### Task type (M6 `tag-style`)
 
@@ -130,6 +155,12 @@ Target: **WCAG 2.2 AA**. These rules are not optional for any milestone.
 | `type-feature` / `type-bug` on white | 5.5 / 6.3 : 1 |
 | `due-safe` / `warning` / `overdue` / `neutral` on own tint | 6.2 / 4.8 / 5.9 / 5.3 : 1 |
 
+**Dark mode contrast (checked).** Every dark solid colour is **≥ 7:1** on `surface-card`, `surface-page`, `surface-column` and its own tint; `text-muted` is ≥ 6.3:1 on every surface and tint; `ink-on-fill` is ≥ 8:1 on every fill; `border-input` is 3.7:1 on cards. `color-scheme: dark` makes native date pickers, selects and scrollbars follow the theme.
+
+**Automated check.** axe-core (WCAG 2.2 AA + best practice) reports **0 violations** on the board and the open modal, in both themes.
+
+**Theme toggle.** One `<button aria-pressed>` labelled "Dark mode", so screen readers announce it as a toggle that is pressed or not pressed. Both the sun and moon icons are always visible, with the active one on a filled knob, so the state never depends on colour alone. The saved theme is applied in `index.html` before first paint, so there's no white flash.
+
 **Never colour alone (WCAG 1.4.1).** Red/green and amber/red pairs are hard to tell apart for colour-blind users, so every colour signal is paired with text and an icon:
 - Feature / bug: a badge with the word ("Feature" / "Bug") plus a Lucide icon (`sparkles` / `bug`), as well as the coloured stripe.
 - Due states: a text label plus an icon — `calendar` "Due 24 Oct", `clock` "Due in 5 h", `alert-triangle` "Overdue 2 d", `check` "Done".
@@ -157,9 +188,8 @@ Target: **WCAG 2.2 AA**. These rules are not optional for any milestone.
 
 To keep design tight, the following are explicitly not part of `design-done`:
 
-- A dark mode toggle. Pick one mode and ship it.
-- Multiple themes. One brand, applied consistently.
-- Animations beyond a 200 ms fade on toast notifications.
+- Multiple themes beyond light / dark. One brand, applied consistently. *(Dark mode was added in M12 `secret-sauce` with its own checked palette, see §2.)*
+- Animations beyond a 200 ms fade on toast notifications, *except* the M12 additions: drag lift, spark burst, counter roll, the 2 s shine across "Ship" (runs once on load and once per ship, never looping, per WCAG 2.2.2), the spotlight glow on deliverable cards, and the 300 ms tick draw-in. All are off under `prefers-reduced-motion`, and the React Bits-inspired ones (ShinyText, SpotlightCard, StatusMark, ClickSpark, Counter) are re-implemented without extra dependencies.
 - A custom icon set. Use [Lucide icons](https://lucide.dev) via Tailwind classes if you need any.
 
 ---

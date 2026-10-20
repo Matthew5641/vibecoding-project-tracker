@@ -126,7 +126,7 @@ Four columns, in this order, with these exact labels in the UI:
 
 These names become the allowed values for `Task.assignee`. No auth — just a dropdown.
 
-> Solo project: the tracker adds a second assignee, **AI Agent**, representing the AI tool work is handed off to. This gives the M7 "Hand off to…" flow a real target.
+> Solo project: the team starts with just Matthew. Teammates can be added and removed in the app (the Team strip on the Board tab); everyone on the team appears in the Assignee and "Hand off to…" dropdowns.
 
 ## 11. Milestone ownership
 

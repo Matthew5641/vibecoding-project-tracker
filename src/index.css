@@ -2,6 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Colour tokens (DESIGN.md §2) as "R G B" triples so Tailwind's opacity
+ * modifiers still work (e.g. bg-surface-page/80). Every pairing is checked
+ * for WCAG AA in both themes — see DESIGN.md §7.
+ */
+:root {
+  --brand-primary: 79 70 229; /* #4F46E5 — header, "+" button, focus rings */
+  --brand-primary-hover: 67 56 202; /* #4338CA — hover on primary buttons */
+  --brand-accent: 190 24 93; /* #BE185D — highlights, hover, links */
+  --surface-page: 247 246 243; /* #F7F6F3 — page background */
+  --surface-card: 255 255 255; /* #FFFFFF — cards, modal, inputs */
+  --surface-column: 242 241 238; /* #F2F1EE — Kanban columns */
+  --ink-primary: 28 27 34; /* #1C1B22 — body text */
+  --ink-muted: 95 92 107; /* #5F5C6B — captions, dates, counts */
+  --ink-on-fill: 255 255 255; /* #FFFFFF — text on solid fills (buttons, avatars, toast) */
+  --line-input: 134 130 143; /* #86828F — form field borders (>= 3:1) */
+  --line-subtle: 231 229 228; /* #E7E5E4 — decorative borders only */
+  --feature: 15 118 110; /* #0F766E — M6 feature */
+  --feature-tint: 240 253 250; /* #F0FDFA */
+  --bug: 190 18 60; /* #BE123C — M6 bug */
+  --bug-tint: 255 241 242; /* #FFF1F2 */
+  --due-safe: 29 78 216; /* #1D4ED8 — M8 > 2 days out */
+  --due-warning: 180 83 9; /* #B45309 — M8 < 24 hours */
+  --due-overdue: 185 28 28; /* #B91C1C — M8 past due */
+  --due-neutral: 107 101 96; /* #6B6560 — M8 done */
+  --due-safe-tint: 239 246 255; /* #EFF6FF */
+  --due-warning-tint: 255 251 235; /* #FFFBEB */
+  --due-overdue-tint: 254 242 242; /* #FEF2F2 */
+  --due-neutral-tint: 245 245 244; /* #F5F5F4 */
+  color-scheme: light;
+}
+
+/* Dark theme (M12) — toggled by the .dark class on <html> */
+:root.dark {
+  --brand-primary: 165 160 255; /* #A5A0FF */
+  --brand-primary-hover: 196 192 255; /* #C4C0FF */
+  --brand-accent: 244 143 196; /* #F48FC4 */
+  --surface-page: 19 18 24; /* #131218 */
+  --surface-card: 30 29 38; /* #1E1D26 */
+  --surface-column: 25 24 31; /* #19181F */
+  --ink-primary: 237 235 242; /* #EDEBF2 */
+  --ink-muted: 169 166 181; /* #A9A6B5 */
+  --ink-on-fill: 19 18 24; /* #131218 */
+  --line-input: 119 115 138; /* #77738A */
+  --line-subtle: 46 44 56; /* #2E2C38 */
+  --feature: 45 212 191; /* #2DD4BF */
+  --feature-tint: 18 43 41; /* #122B29 */
+  --bug: 251 141 160; /* #FB8DA0 */
+  --bug-tint: 52 26 33; /* #341A21 */
+  --due-safe: 134 184 255; /* #86B8FF */
+  --due-warning: 247 192 74; /* #F7C04A */
+  --due-overdue: 255 138 138; /* #FF8A8A */
+  --due-neutral: 180 175 168; /* #B4AFA8 */
+  --due-safe-tint: 22 35 58; /* #16233A */
+  --due-warning-tint: 46 36 18; /* #2E2412 */
+  --due-overdue-tint: 54 26 28; /* #361A1C */
+  --due-neutral-tint: 37 36 44; /* #25242C */
+  color-scheme: dark; /* native date pickers, selects and scrollbars follow */
+}
+
 html, body, #root {
   height: 100%;
 }
@@ -9,9 +69,14 @@ html, body, #root {
 body {
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f7f6f3; /* surface-page */
-  color: #1c1b22;            /* ink-primary */
+  background-color: rgb(var(--surface-page));
+  color: rgb(var(--ink-primary));
   -webkit-font-smoothing: antialiased;
+}
+
+/* Focus-ring offsets match the page instead of Tailwind's default white */
+*, ::before, ::after {
+  --tw-ring-offset-color: rgb(var(--surface-page));
 }
 
 /* DESIGN.md §7 — respect reduced-motion preferences */
