@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import Board from './components/Board.jsx';
+import { createSeedTasks } from './seedTasks.js';
 
 /**
  * Vibecoding Project Tracker — starter scaffold.
@@ -42,9 +44,8 @@ export const STAGES = [
   { id: 'done',        label: 'Done' },
 ];
 
-// Replace these placeholders with the three names from PRD §8 before M4.
-// They become the only valid values for `Task.assignee`.
-export const TEAM = ['Teammate A', 'Teammate B', 'Teammate C'];
+// From PRD §10 (solo project). The only valid values for `Task.assignee`.
+export const TEAM = ['Matthew Devon'];
 
 /**
  * A tiny localStorage hook — survives reloads, no library needed.
@@ -74,9 +75,11 @@ export function useLocalStorage(key, initialValue) {
 }
 
 export default function App() {
-  // TODO M4 data-model:
-  //   const [tasks, setTasks] = useLocalStorage('vibetracker.tasks', [/* 3-4 seed tasks */]);
-  //
+  const [tasks, setTasks] = useLocalStorage(
+    'vibetracker.tasks',
+    createSeedTasks(TEAM[0])
+  );
+
   // TODO M5 crud-modal:
   //   const [editing, setEditing] = useState(null);
   //
@@ -84,15 +87,16 @@ export default function App() {
   //   const [anchors, setAnchors] = useLocalStorage('vibetracker.anchors', [...]);
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="mx-auto min-h-screen max-w-7xl p-4 sm:p-6">
       <header className="mb-6 flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Vibecoding Project Tracker
+          <h1 className="font-heading text-2xl font-semibold text-ink-primary">
+            Intent{' '}
+            <span className="text-brand-primary" aria-hidden="true">→</span>
+            <span className="sr-only">to</span> Ship
           </h1>
-          <p className="text-sm text-slate-500">
-            {/* Replace this line with your team name from PRD §11. */}
-            Team starter
+          <p className="text-sm text-ink-muted">
+            Team Matthew · from intent to ship, one vibecoding task at a time
           </p>
         </div>
       </header>
@@ -100,17 +104,12 @@ export default function App() {
       {/* TODO M11 anchors: render the Anchor Board (Presentation / Demo / Report / Documentation) above the board. */}
 
       {/*
-        TODO M4 data-model:
-          Render a Kanban board with the four columns from STAGES.
-          Each column should display the tasks whose status matches its id.
-          Pre-populate 3-4 mock tasks so the board isn't empty on first load.
-
         TODO M5 crud-modal:
           Add a "+" button that opens a modal with every Task field.
           Clicking a card should open the same modal in edit mode.
       */}
-      <main className="flex h-64 items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-slate-400">
-        Build the four-column board here · M4
+      <main>
+        <Board stages={STAGES} tasks={tasks} />
       </main>
     </div>
   );
