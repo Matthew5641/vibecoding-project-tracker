@@ -3,6 +3,7 @@ import Board from './components/Board.jsx';
 import TaskModal from './components/TaskModal.jsx';
 import DrivingStrip from './components/DrivingStrip.jsx';
 import Toast from './components/Toast.jsx';
+import { DueLegend } from './components/DueLabel.jsx';
 import { createSeedTasks, isoDaysFromToday } from './seedTasks.js';
 
 /**
@@ -88,6 +89,13 @@ export default function App() {
   const [editing, setEditing] = useState(null);
 
   const [toast, setToast] = useState(null);
+
+  // Re-render every minute so due tints change on their own (M8)
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
   const [highlightedId, setHighlightedId] = useState(null);
 
   useEffect(() => {
@@ -183,13 +191,17 @@ export default function App() {
 
       {/* TODO M11 anchors: render the Anchor Board (Presentation / Demo / Report / Documentation) above the board. */}
 
-      <DrivingStrip team={TEAM} tasks={tasks} />
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <DrivingStrip team={TEAM} tasks={tasks} />
+        <DueLegend />
+      </div>
 
       <main>
         <Board
           stages={STAGES}
           tasks={tasks}
           team={TEAM}
+          now={now}
           onOpenTask={(task) => setEditing({ isNew: false, task })}
           onHandOff={handOff}
           highlightedId={highlightedId}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import DueLabel, { getDueState } from './DueLabel.jsx';
 import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
 
 const inputClass =
@@ -188,8 +189,12 @@ export default function TaskModal({ task, isNew, stages, team, onSave, onDelete,
                 type="date"
                 value={draft.dueDate ?? ''}
                 onChange={(e) => update('dueDate', e.target.value || null)}
+                aria-describedby="task-due-state"
                 className={inputClass}
               />
+              <p id="task-due-state" className="mt-1">
+                <DueLabel due={getDueState(draft, new Date())} />
+              </p>
             </div>
           </div>
 

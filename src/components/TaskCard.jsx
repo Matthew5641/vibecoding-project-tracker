@@ -1,4 +1,5 @@
 import Avatar from './Avatar.jsx';
+import DueLabel, { DUE_STYLES, getDueState } from './DueLabel.jsx';
 import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
 
 /**
@@ -9,14 +10,16 @@ import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
  * the card is one big click target but still a heading for screen readers —
  * and later buttons (M10 Copy Context) can sit on top without nesting.
  */
-export default function TaskCard({ task, team, onOpen, onHandOff, highlighted }) {
+export default function TaskCard({ task, team, now, onOpen, onHandOff, highlighted }) {
   const typeStyle = TYPE_STYLES[task.type] ?? TYPE_STYLES.feature;
   const others = team.filter((name) => name !== task.assignee);
+  const due = getDueState(task, now);
+  const dueStyle = due ? DUE_STYLES[due.state] : { bg: 'bg-surface-card', border: 'border-line-subtle' };
 
   return (
     <article
       aria-labelledby={`task-${task.id}-title`}
-      className={`relative rounded-lg border border-l-4 border-line-subtle ${typeStyle.stripe} bg-surface-card p-3 shadow-sm transition-shadow hover:shadow-md has-[:focus-visible]:shadow-md has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-primary has-[:focus-visible]:ring-offset-2 ${
+      className={`relative rounded-lg border border-l-4 ${dueStyle.border} ${typeStyle.stripe} ${dueStyle.bg} p-3 shadow-sm transition-shadow hover:shadow-md has-[:focus-visible]:shadow-md has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-primary has-[:focus-visible]:ring-offset-2 ${
         highlighted ? 'ring-2 ring-brand-accent ring-offset-2' : ''
       }`}
     >
@@ -37,6 +40,12 @@ export default function TaskCard({ task, team, onOpen, onHandOff, highlighted })
           {task.title}
         </button>
       </h3>
+
+      {due && (
+        <div className="mt-2">
+          <DueLabel due={due} />
+        </div>
+      )}
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">

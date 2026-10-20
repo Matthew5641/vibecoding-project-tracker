@@ -3,7 +3,7 @@ import Avatar from './Avatar.jsx';
 /** "Who's driving what" — each teammate's In Progress tasks at a glance (M7). */
 export default function DrivingStrip({ team, tasks }) {
   return (
-    <section aria-labelledby="driving-heading" className="mb-6">
+    <section aria-labelledby="driving-heading">
       <h2 id="driving-heading" className="sr-only">
         Who's driving
       </h2>
