@@ -11,12 +11,16 @@ export function initials(name) {
 /**
  * One task on the board. M4 shows the essentials (title + assignee);
  * M5 makes it clickable, M6 adds the type stripe, M8 the due tint.
+ *
+ * The title is a button stretched over the whole card (after:inset-0), so
+ * the card is one big click target but still a heading for screen readers —
+ * and later buttons (M10 Copy Context) can sit on top without nesting.
  */
-export default function TaskCard({ task }) {
+export default function TaskCard({ task, onOpen }) {
   return (
     <article
       aria-labelledby={`task-${task.id}-title`}
-      className="rounded-lg border border-line-subtle bg-surface-card p-3 shadow-sm"
+      className="relative rounded-lg border border-line-subtle bg-surface-card p-3 shadow-sm transition-shadow hover:shadow-md has-[:focus-visible]:shadow-md has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-primary has-[:focus-visible]:ring-offset-2"
     >
       <p className="font-mono text-xs text-ink-muted">{task.id}</p>
 
@@ -24,7 +28,13 @@ export default function TaskCard({ task }) {
         id={`task-${task.id}-title`}
         className="mt-1 text-sm font-medium leading-snug text-ink-primary"
       >
-        {task.title}
+        <button
+          type="button"
+          onClick={() => onOpen(task)}
+          className="text-left after:absolute after:inset-0 after:rounded-lg after:content-[''] focus:outline-none"
+        >
+          {task.title}
+        </button>
       </h3>
 
       <div className="mt-3 flex items-center gap-2">

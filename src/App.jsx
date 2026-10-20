@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Board from './components/Board.jsx';
-import { createSeedTasks } from './seedTasks.js';
+import TaskModal from './components/TaskModal.jsx';
+import { createSeedTasks, isoDaysFromToday } from './seedTasks.js';
 
 /**
  * Vibecoding Project Tracker — starter scaffold.
@@ -80,15 +81,53 @@ export default function App() {
     createSeedTasks(TEAM[0])
   );
 
-  // TODO M5 crud-modal:
-  //   const [editing, setEditing] = useState(null);
-  //
+  // The task open in the modal, or null. `isNew` marks an unsaved draft.
+  const [editing, setEditing] = useState(null);
+
+  function nextTaskId() {
+    const highest = tasks.reduce((max, t) => {
+      const n = Number(t.id.replace(/^T-/, ''));
+      return Number.isFinite(n) ? Math.max(max, n) : max;
+    }, 100);
+    return `T-${highest + 1}`;
+  }
+
+  function openNewTask() {
+    setEditing({
+      isNew: true,
+      task: {
+        id: '',
+        title: '',
+        description: '',
+        type: 'feature',
+        status: 'todo',
+        assignee: TEAM[0],
+        dueDate: null,
+        createdDate: isoDaysFromToday(0),
+      },
+    });
+  }
+
+  function saveTask(task) {
+    if (editing.isNew) {
+      setTasks((ts) => [...ts, { ...task, id: nextTaskId() }]);
+    } else {
+      setTasks((ts) => ts.map((t) => (t.id === task.id ? task : t)));
+    }
+    setEditing(null);
+  }
+
+  function deleteTask(id) {
+    setTasks((ts) => ts.filter((t) => t.id !== id));
+    setEditing(null);
+  }
+
   // TODO M11 anchors:
   //   const [anchors, setAnchors] = useLocalStorage('vibetracker.anchors', [...]);
 
   return (
     <div className="mx-auto min-h-screen max-w-7xl p-4 sm:p-6">
-      <header className="mb-6 flex items-end justify-between">
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl font-semibold text-ink-primary">
             Intent{' '}
@@ -99,18 +138,38 @@ export default function App() {
             Team Matthew · from intent to ship, one vibecoding task at a time
           </p>
         </div>
+        <button
+          id="new-task-button"
+          type="button"
+          onClick={openNewTask}
+          className="h-10 rounded-md bg-brand-primary px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+        >
+          <span aria-hidden="true">+</span> New task
+        </button>
       </header>
 
       {/* TODO M11 anchors: render the Anchor Board (Presentation / Demo / Report / Documentation) above the board. */}
 
-      {/*
-        TODO M5 crud-modal:
-          Add a "+" button that opens a modal with every Task field.
-          Clicking a card should open the same modal in edit mode.
-      */}
       <main>
-        <Board stages={STAGES} tasks={tasks} />
+        <Board
+          stages={STAGES}
+          tasks={tasks}
+          onOpenTask={(task) => setEditing({ isNew: false, task })}
+        />
       </main>
+
+      {editing && (
+        <TaskModal
+          key={editing.task.id || 'new'}
+          task={editing.task}
+          isNew={editing.isNew}
+          stages={STAGES}
+          team={TEAM}
+          onSave={saveTask}
+          onDelete={deleteTask}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }

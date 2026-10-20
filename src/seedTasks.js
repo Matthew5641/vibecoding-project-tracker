@@ -5,7 +5,7 @@
  * due states once M8 due-tint lands — one overdue, one due soon, one calm.
  */
 
-function isoDaysFromToday(days) {
+export function isoDaysFromToday(days) {
   const d = new Date();
   d.setDate(d.getDate() + days);
   // Local date, not UTC, so "today" matches the user's calendar
