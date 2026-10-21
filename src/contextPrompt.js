@@ -1,4 +1,5 @@
 import { OUTCOMES } from './prompts.js';
+import { getTimeInColumn } from './stuck.js';
 
 const MAX_PROMPT_CHARS = 280;
 
@@ -33,8 +34,14 @@ export function buildContextPrompt(task, stages) {
     task.contextTool && `- **AI tool:** ${task.contextTool}`,
   ].filter(Boolean);
 
+  // A stuck task (M12) opens by asking for help, not just a hand-over
+  const time = getTimeInColumn(task, new Date());
+  const opener = time?.stuck
+    ? `I'm stuck on a vibecoding task — it has been in ${status} for ${time.days} days. Here's the briefing: please help me work out what's blocking it and the smallest next step.`
+    : "I'm continuing a vibecoding task. Here's the briefing — please pick up where it leaves off.";
+
   const sections = [
-    "I'm continuing a vibecoding task. Here's the briefing — please pick up where it leaves off.",
+    opener,
     `# ${task.title || 'Untitled task'}`,
     facts.join('\n'),
     task.description?.trim() && `## Description\n${task.description.trim()}`,

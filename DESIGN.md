@@ -137,8 +137,8 @@ Three lines of microcopy that capture the tone of the product. Keep it short —
 
 The tracker probably doesn't need a logo, but it does need a name and a wordmark style.
 
-- **Product name:** Intent to Ship (team: Team Matthew)
-- **Wordmark style:** "Intent → Ship" in Space Grotesk semibold, text-primary, with the arrow in brand-primary. No icon.
+- **Product name:** Vibecoding Project Tracker (team: Team Matthew)
+- **Wordmark style:** "Vibecoding Project Tracker" in Space Grotesk semibold, text-primary, no tagline, no icon. A brand-primary shine sweeps across it once on load and once each time a task ships.
 
 ## 7. Accessibility
 
@@ -189,7 +189,7 @@ Target: **WCAG 2.2 AA**. These rules are not optional for any milestone.
 To keep design tight, the following are explicitly not part of `design-done`:
 
 - Multiple themes beyond light / dark. One brand, applied consistently. *(Dark mode was added in M12 `secret-sauce` with its own checked palette, see §2.)*
-- Animations beyond a 200 ms fade on toast notifications, *except* the M12 additions: drag lift, spark burst, counter roll, the 2 s shine across "Ship" (runs once on load and once per ship, never looping, per WCAG 2.2.2), the spotlight glow on deliverable cards, and the 300 ms tick draw-in. All are off under `prefers-reduced-motion`, and the React Bits-inspired ones (ShinyText, SpotlightCard, StatusMark, ClickSpark, Counter) are re-implemented without extra dependencies.
+- Animations beyond a 200 ms fade on toast notifications, *except* the M12 additions: drag lift, spark burst, counter roll, the 2 s shine across the title (runs once on load and once per ship, never looping, per WCAG 2.2.2), the spotlight glow on deliverable cards, and the 300 ms tick draw-in. All are off under `prefers-reduced-motion`, and the React Bits-inspired ones (ShinyText, SpotlightCard, StatusMark, ClickSpark, Counter) are re-implemented without extra dependencies.
 - A custom icon set. Use [Lucide icons](https://lucide.dev) via Tailwind classes if you need any.
 
 ---

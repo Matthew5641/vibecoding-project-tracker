@@ -76,9 +76,11 @@ Seed 3–4 tasks and show title + assignee on each card.
       description: 'Keyboard users cannot see which card is focused.',
       type: 'bug',
       status: 'review',
+      // In Review for 3 days, so the M12 stuck-task nudge shows on first load
+      statusChangedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
       assignee: owner,
       dueDate: isoDaysFromToday(-1),
-      createdDate: isoDaysFromToday(-1),
+      createdDate: isoDaysFromToday(-4),
     },
     {
       id: 'T-104',

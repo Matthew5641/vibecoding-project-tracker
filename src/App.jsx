@@ -12,6 +12,7 @@ import ShipSparks from './components/ShipSparks.jsx';
 import ShippedCounter from './components/ShippedCounter.jsx';
 import ThemeToggle from './components/ThemeToggle.jsx';
 import ShinyText from './components/ShinyText.jsx';
+import { withStatus } from './stuck.js';
 import { createSeedTasks, isoDaysFromToday } from './seedTasks.js';
 
 /**
@@ -140,7 +141,7 @@ export default function App() {
 
   // M12 ship moment: sparks where the card lands, plus a toast
   const sparksRef = useRef(null);
-  // Bumped on every ship, replaying the shine across "Ship" in the title
+  // Bumped on every ship, replaying the shine across the title
   const [shipCount, setShipCount] = useState(0);
 
   function celebrateShip(task, point) {
@@ -151,7 +152,7 @@ export default function App() {
 
   function moveTask(taskId, status, point) {
     const task = tasks.find((t) => t.id === taskId);
-    setTasks((ts) => ts.map((t) => (t.id === taskId ? { ...t, status } : t)));
+    setTasks((ts) => ts.map((t) => (t.id === taskId ? withStatus(t, status) : t)));
     if (status === 'done') celebrateShip(task, point);
   }
 
@@ -216,9 +217,11 @@ export default function App() {
 
   function saveTask(task) {
     if (editing.isNew) {
-      setTasks((ts) => [...ts, { ...task, id: nextTaskId() }]);
+      setTasks((ts) => [...ts, { ...task, id: nextTaskId(), statusChangedAt: new Date().toISOString() }]);
     } else {
-      setTasks((ts) => ts.map((t) => (t.id === task.id ? task : t)));
+      // Stamp statusChangedAt if the status dropdown changed (M12 stuck-task nudge)
+      const saved = withStatus({ ...task, status: editing.task.status }, task.status);
+      setTasks((ts) => ts.map((t) => (t.id === task.id ? saved : t)));
       if (task.assignee !== editing.task.assignee) acknowledgeHandOff(task.id, task.assignee);
       else if (task.status === 'done' && editing.task.status !== 'done') celebrateShip(task, null);
     }
@@ -238,17 +241,10 @@ export default function App() {
 
   return (
     <div className="mx-auto min-h-screen max-w-7xl p-4 sm:p-6">
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold text-ink-primary">
-            Intent{' '}
-            <span className="text-brand-primary" aria-hidden="true">→</span>
-            <span className="sr-only">to</span> <ShinyText replay={shipCount}>Ship</ShinyText>
-          </h1>
-          <p className="text-sm text-ink-muted">
-            Team Matthew · from intent to ship, one vibecoding task at a time
-          </p>
-        </div>
+      <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <h1 className="font-heading text-2xl font-semibold text-ink-primary">
+          <ShinyText replay={shipCount}>Vibecoding Project Tracker</ShinyText>
+        </h1>
         <div className="flex items-end gap-6">
           <ShippedCounter
             shipped={tasks.filter((t) => t.status === 'done').length}

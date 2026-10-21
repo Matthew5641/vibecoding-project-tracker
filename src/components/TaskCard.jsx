@@ -5,6 +5,8 @@ import CopyContextButton from './CopyContextButton.jsx';
 import DueLabel, { DUE_STYLES, getDueState } from './DueLabel.jsx';
 import TypeBadge, { TYPE_STYLES } from './TypeBadge.jsx';
 import { nameWithRole } from './DrivingStrip.jsx';
+import TimeInColumn from './TimeInColumn.jsx';
+import { getTimeInColumn } from '../stuck.js';
 
 /**
  * One task on the board. M4 shows the essentials (title + assignee);
@@ -38,6 +40,8 @@ export default function TaskCard({
   const titleId = `${overlay ? 'overlay-' : ''}task-${task.id}-title`;
   const promptCount = task.prompts?.length ?? 0;
   const counts = outcomeCounts(task.prompts);
+  const time = getTimeInColumn(task, now);
+  const columnLabel = stages.find((s) => s.id === task.status)?.label ?? task.status;
 
   // Mouse/touch drags start anywhere on the card except form controls
   function handlePointerDown(e) {
@@ -92,6 +96,7 @@ export default function TaskCard({
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <DueLabel due={due} />
+          <TimeInColumn time={time} columnLabel={columnLabel} />
           {promptCount > 0 && (
             <span
               title={`${counts.worked} worked · ${counts.partly} partly · ${counts.failed} failed`}
